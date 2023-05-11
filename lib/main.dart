@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'pages/auth_page.dart';
-import 'pages/loading_page.dart';
+import 'pages/auth_or_app_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,7 +16,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const AuthPage(),
+      home: const AuthOrAppPage(),
       debugShowCheckedModeBanner: false,
     );
   }
