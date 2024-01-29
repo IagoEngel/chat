@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 import '../../models/chat_user.dart';
@@ -35,7 +36,13 @@ class AuthFirebaseService implements AuthService {
     String name,
     File? image,
   ) async {
-    final auth = FirebaseAuth.instance;
+    final signup = await Firebase.initializeApp(
+      name: 'br.cod3r.chat',
+      options: Firebase.app().options,
+    );
+
+    final auth = FirebaseAuth.instanceFor(app: signup);
+
     UserCredential credential = await auth.createUserWithEmailAndPassword(
         email: email, password: password);
 
@@ -54,6 +61,8 @@ class AuthFirebaseService implements AuthService {
     // 3. salvar usuário no banco de dados (opcional)
     _currentUser = _toChatUser(credential.user!, name, imageUrl);
     await _saveChatUser(_currentUser!);
+
+    await signup.delete();
   }
 
   @override
