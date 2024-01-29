@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 import '../../models/chat_user.dart';
 import 'auth_service.dart';
@@ -41,8 +43,17 @@ class AuthFirebaseService implements AuthService {
       return;
     }
 
-    credential.user?.updateDisplayName(name);
-    // credential.user?.updatePhotoURL(photoURL);
+    // 1. Upload da foto do usuário
+    final imageName = '${credential.user!.uid}.jpg';
+    final imageUrl = await _uploadUserImage(image, imageName);
+
+    // 2. atualizar os atributos do usuário
+    await credential.user?.updateDisplayName(name);
+    await credential.user?.updatePhotoURL(imageUrl);
+
+    // 3. salvar usuário no banco de dados (opcional)
+    _currentUser = _toChatUser(credential.user!, name, imageUrl);
+    await _saveChatUser(_currentUser!);
   }
 
   @override
@@ -50,7 +61,8 @@ class AuthFirebaseService implements AuthService {
     String email,
     String password,
   ) async {
-    await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
+    await FirebaseAuth.instance
+        .signInWithEmailAndPassword(email: email, password: password);
   }
 
   @override
@@ -58,12 +70,35 @@ class AuthFirebaseService implements AuthService {
     FirebaseAuth.instance.signOut();
   }
 
-  static ChatUser _toChatUser(User user) {
+  Future<String?> _uploadUserImage(File? image, String imageName) async {
+    if (image == null) {
+      return null;
+    }
+
+    final storage = FirebaseStorage.instance;
+    final imageRef = storage.ref().child('user_images').child(imageName);
+    await imageRef.putFile(image).whenComplete(() {});
+
+    return await imageRef.getDownloadURL();
+  }
+
+  Future<void> _saveChatUser(ChatUser user) async {
+    final store = FirebaseFirestore.instance;
+    final docRef = store.collection('users').doc(user.id);
+
+    await docRef.set({
+      'name': user.name,
+      'email': user.email,
+      'imageURL': user.imageURL,
+    });
+  }
+
+  static ChatUser _toChatUser(User user, [String? name, String? imageURL]) {
     return ChatUser(
       id: user.uid,
-      name: user.displayName ?? user.email!.split('@')[0],
+      name: name ?? user.displayName ?? user.email!.split('@')[0],
       email: user.email!,
-      imageURL: user.photoURL ?? 'assets/images/avatar.png',
+      imageURL: imageURL ?? user.photoURL ?? 'assets/images/avatar.png',
     );
   }
 }
