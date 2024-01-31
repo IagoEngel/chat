@@ -1,16 +1,11 @@
 # chat
 
-A new Flutter project.
+Sexto projeto finalizado no curso 'Aprenda Flutter e Desenvolva Apps Para Android e IOS 2022'.
 
-## Getting Started
+Com este app, o usuário irá fazer um cadastro e assim poderá se juntar a um grupo para trocar mensagens. Este app conta com um login 'automático' utilizando Stream, onde é verificado se o usuario foi desconectado ou não do FirebaseAuth. Outra Stream utilizada é na hora de receber e enviar mensagens - escutando a quaisquer mudanças que ocorrem no Firestore e adiciona as mensagens. E ainda conta com um recurso de receber notificações push do Firebase.
 
-This project is a starting point for a Flutter application.
+Pacotes utilizados: image_picker, provider, cloud_firestore, firebase_auth, firebase_core, firebase_storage e firebase_messaging.
 
-A few resources to get you started if this is your first Flutter project:
+Versão do Flutter: 3.10.2
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+![Gif apresentando o projeto](chat.gif)
